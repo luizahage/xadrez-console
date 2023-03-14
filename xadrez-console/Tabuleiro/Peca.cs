@@ -2,12 +2,12 @@
 {
     class Peca
     {
-        public Peca posicao { get; set; }
+        public Posicao posicao { get; set; }
         public Cor cor { get; protected set; }
         public int qtdeMovimentos { get; protected set; }
         public TabuleiroXadrez tab { get; protected set; }
 
-        public Peca(Peca posicao, Cor cor, TabuleiroXadrez tab)
+        public Peca(Posicao posicao, Cor cor, TabuleiroXadrez tab)
         {
             this.posicao = posicao;
             this.cor = cor;
