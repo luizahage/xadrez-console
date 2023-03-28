@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using Tabuleiro;
 
 namespace Xadrez
@@ -9,6 +9,8 @@ namespace Xadrez
         public int turno { get; private set; }
         public Cor jogadorAtual { get; private set; }
         public bool terminada { get; private set; }
+        private HashSet<Peca> pecas;
+        private HashSet<Peca> capturadas;
 
         public PartidaDeXadrez()
         {
@@ -16,6 +18,8 @@ namespace Xadrez
             turno = 1;
             jogadorAtual = Cor.Branca;
             terminada = false;
+            pecas = new HashSet<Peca>();
+            capturadas = new HashSet<Peca>();
             ColocarPecas();
         }
 
@@ -25,6 +29,10 @@ namespace Xadrez
             p.IncrementarQtdeMovimentos();
             Peca pecaCapturada = tab.RetirarPeca(destino);
             tab.ColocarPeca(p, destino);
+            if (pecaCapturada != null)
+            {
+                capturadas.Add(pecaCapturada);
+            }
         }
 
         public void RealizaJogada(Posicao origem, Posicao destino)
@@ -70,21 +78,54 @@ namespace Xadrez
             }
         }
 
+        public HashSet<Peca> PecasCapturadas(Cor cor)
+        {
+            HashSet<Peca> aux = new HashSet<Peca>();
+            foreach (Peca capturada in capturadas)
+            {
+                if (capturada.cor == cor)
+                {
+                    aux.Add(capturada);
+                }
+            }
+            return aux;
+        }
+
+        public HashSet<Peca> PecasEmJogo(Cor cor)
+        {
+            HashSet<Peca> aux = new HashSet<Peca>();
+            foreach (Peca peca in pecas)
+            {
+                if (peca.cor == cor)
+                {
+                    aux.Add(peca);
+                }
+            }
+            aux.ExceptWith(PecasCapturadas(cor));
+            return aux;
+        }
+
+        public void ColocarNovaPeca(char coluna, int linha, Peca peca)
+        {
+            tab.ColocarPeca(peca, new PosicaoXadrez(coluna, linha).ToPosicao());
+            pecas.Add(peca);
+        }
+
         private void ColocarPecas()
         {
-            tab.ColocarPeca(new Torre(Cor.Branca, tab), new PosicaoXadrez('c', 1).ToPosicao());
-            tab.ColocarPeca(new Torre(Cor.Branca, tab), new PosicaoXadrez('c', 2).ToPosicao());
-            tab.ColocarPeca(new Torre(Cor.Branca, tab), new PosicaoXadrez('d', 2).ToPosicao());
-            tab.ColocarPeca(new Torre(Cor.Branca, tab), new PosicaoXadrez('e', 2).ToPosicao());
-            tab.ColocarPeca(new Torre(Cor.Branca, tab), new PosicaoXadrez('e', 1).ToPosicao());
-            tab.ColocarPeca(new Rei(Cor.Branca, tab), new PosicaoXadrez('d', 1).ToPosicao());
+            ColocarNovaPeca('c', 1, new Torre(Cor.Branca, tab));
+            ColocarNovaPeca('c', 2, new Torre(Cor.Branca, tab));
+            ColocarNovaPeca('d', 2, new Torre(Cor.Branca, tab));
+            ColocarNovaPeca('e', 2, new Torre(Cor.Branca, tab));
+            ColocarNovaPeca('e', 1, new Torre(Cor.Branca, tab));
+            ColocarNovaPeca('d', 1, new Rei(Cor.Branca, tab));
 
-            tab.ColocarPeca(new Torre(Cor.Preta, tab), new PosicaoXadrez('c', 7).ToPosicao());
-            tab.ColocarPeca(new Torre(Cor.Preta, tab), new PosicaoXadrez('c', 8).ToPosicao());
-            tab.ColocarPeca(new Torre(Cor.Preta, tab), new PosicaoXadrez('d', 7).ToPosicao());
-            tab.ColocarPeca(new Torre(Cor.Preta, tab), new PosicaoXadrez('e', 7).ToPosicao());
-            tab.ColocarPeca(new Torre(Cor.Preta, tab), new PosicaoXadrez('e', 8).ToPosicao());
-            tab.ColocarPeca(new Rei(Cor.Preta, tab), new PosicaoXadrez('d', 8).ToPosicao());
+            ColocarNovaPeca('c', 7, new Torre(Cor.Preta, tab));
+            ColocarNovaPeca('c', 8, new Torre(Cor.Preta, tab));
+            ColocarNovaPeca('d', 7, new Torre(Cor.Preta, tab));
+            ColocarNovaPeca('e', 7, new Torre(Cor.Preta, tab));
+            ColocarNovaPeca('e', 8, new Torre(Cor.Preta, tab));
+            ColocarNovaPeca('d', 8, new Rei(Cor.Preta, tab));
         }
     }
 }
