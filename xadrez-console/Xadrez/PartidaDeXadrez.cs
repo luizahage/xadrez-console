@@ -30,7 +30,7 @@ namespace Xadrez
         public Peca ExecutaMovimento(Posicao origem, Posicao destino)
         {
             Peca p = tab.RetirarPeca(origem);
-            p.DecrementarQtdeMovimentos();
+            p.IncrementarQtdeMovimentos();
             Peca pecaCapturada = tab.RetirarPeca(destino);
             tab.ColocarPeca(p, destino);
             if (pecaCapturada != null)
@@ -59,7 +59,7 @@ namespace Xadrez
             }
 
             //#JogadaEspecial En Passant
-            if (p is Peca)
+            if (p is Peao)
             {
                 if (origem.coluna != destino.coluna && pecaCapturada == null)
                 {
@@ -83,7 +83,7 @@ namespace Xadrez
         public void DesfazMovimento(Posicao origem, Posicao destino, Peca pecaCapturada)
         {
             Peca p = tab.RetirarPeca(destino);
-            p.IncrementarQtdeMovimentos();
+            p.DecrementarQtdeMovimentos();
             if (pecaCapturada != null)
             {
                 tab.ColocarPeca(pecaCapturada, destino);
@@ -141,6 +141,21 @@ namespace Xadrez
                 throw new TabuleiroXadrezException("Você não pode se colocar em xeque!");
             }
 
+            Peca p = tab.Peca(destino);
+
+            //#JogadaEspecial Promocao
+            if (p is Peao)
+            {
+                if ((p.cor == Cor.Branca && destino.linha == 0) || (p.cor == Cor.Preta && destino.linha == 7))
+                {
+                    p = tab.RetirarPeca(destino);
+                    pecas.Remove(p);
+                    Peca dama = new Dama(p.cor, tab);
+                    tab.ColocarPeca(dama, destino);
+                    pecas.Add(dama);
+                }
+            }
+
             if (EstaEmXeque(Adversaria(jogadorAtual)))
             {
                 xeque = true;
@@ -159,8 +174,6 @@ namespace Xadrez
                 turno++;
                 MudaJogador();
             }
-
-            Peca p = tab.Peca(destino);
 
             //#JogadaEspecial En Passant
             if (p is Peao && (destino.linha == origem.linha - 2 || destino.linha == origem.linha + 2))
